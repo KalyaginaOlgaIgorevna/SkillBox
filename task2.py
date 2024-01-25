@@ -1,19 +1,41 @@
-import requests
-import re
+# task2.py
+class DoubleElement:
+    def __init__(self, *lst):
+        # Сохраняем переданные аргументы в виде кортежа
+        self.lst = lst
+        # Инициализируем индекс для отслеживания текущего элемента
+        self.index = 0
 
-def extract_h3_headings(url):
-    try:
-        # Получаем HTML-контент страницы
-        response = requests.get(url)
-        response.raise_for_status()
+    def __next__(self):
+        # Проверяем, не вышел ли индекс за пределы списка
+        if self.index >= len(self.lst):
+            # Если вышел, прерываем итерацию
+            raise StopIteration
+        # Проверяем, можно ли сформировать пару из двух элементов
+        if self.index + 1 < len(self.lst):
+            # Формируем пару из текущего и следующего элементов
+            pair = (self.lst[self.index], self.lst[self.index + 1])
+        else:
+            # Если следующего элемента нет, второй элемент пары - None
+            pair = (self.lst[self.index], None)
+        # Увеличиваем индекс на два для следующей итерации
+        self.index += 2
+        return pair
 
-        # Используем регулярное выражение для извлечения текста из тегов <h3>
-        headings = re.findall(r'<h3[^>]*>(.*?)</h3>', response.text)
+    def __iter__(self):
+        # Возвращаем объект в качестве итератора
+        return self
 
-        return headings
-    except requests.RequestException as e:
-        return f"Ошибка при запросе: {e}"
+# Создание экземпляра класса с четным количеством элементов
+dL = DoubleElement(1, 2, 3, 4)
+# Итерация по объекту и вывод пар элементов
+for pair in dL:
+    print(pair)
 
-url = "https://www.w3schools.com/html/html_examples.asp"
-headings = extract_h3_headings(url)
-print(headings)
+print()
+
+# Создание экземпляра класса с нечетным количеством элементов
+dL = DoubleElement(1, 2, 3, 4, 5)
+# Итерация по объекту и вывод пар элементов
+for pair in dL:
+    print(pair)

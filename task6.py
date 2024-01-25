@@ -1,16 +1,8 @@
 # task6.py
-a = input()
-otv = ''
-while 1:
-    if len(a) > 0:
-        st = a[0]
-        if st != '.':
-            otv += st
-            a = a[1::]
-        else:
-            print(otv)
-            a = a[1::]
-            otv = ''
-    else:
-        print(otv)
-        break
+
+# Чтение списка слов из стандартного ввода
+words = input().split()
+
+# Вывод строки, составленной из последних букв каждого слова
+print(''.join(word[-1] for word in words))
+

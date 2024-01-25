@@ -1,10 +1,22 @@
 # task9.py
-#Если вы введите "Привет, мир!", то программа выведет 3 7, так как в этой строке 3 гласных (и, е, о) и 7 согласных (п, р, в, т, м, р, м).
-vowels = 'аеёиоуыэюя' # Список гласных букв
-consonants = 'бвгджзйклмнпрстфхцчшщ' # Список согласных букв
 
-text = input().lower() # Считываем строку и приводим ее к нижнему регистру
-vowel_count = sum(1 for char in text if char in vowels) # Подсчитываем количество гласных
-consonant_count = sum(1 for char in text if char in consonants) # Подсчитываем количество согласных
+def robot_position(steps):
+    # Вычисление координат робота после N шагов
+    x = y = 0
+    dx, dy = -1, 0
+    for _ in range(steps):
+        x, y = x + dx, y + dy
+        if abs(x) == abs(y) or (x < 0 and x == -y) or (x > 0 and x == 1-y):
+            dx, dy = -dy, dx
+    return x, y
 
-print(vowel_count, consonant_count) # Выводим количество гласных и согласных
+# Чтение количества шагов из файла
+with open("input.txt", "r") as file:
+    n = int(file.readline().strip())
+
+# Получение и запись координат в файл
+result = robot_position(n)
+with open("output.txt", "w") as file:
+    file.write(f"{result[0]} {result[1]}")
+
+# Убедитесь, что файл input.txt существует в той же директории

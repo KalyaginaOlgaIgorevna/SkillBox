@@ -1,46 +1,45 @@
-import requests
-import json
+# Определение класса stack
+class stack:
+    # Инициализация класса
+    def __init__(self) -> None:
+        # Создание пустого списка для хранения элементов стека
+        self.list = list()
 
-def fetch_star_wars_data():
-    base_url = "https://swapi.dev/api"
+    # Метод для добавления элемента в стек
+    def push(self, element) -> None:
+        self.list.append(element)
 
-    def fetch_character_details(url):
-        response = requests.get(url)
-        return response.json() if response.status_code == 200 else None
+    # Метод для извлечения элемента из стека
+    def get(self):
+        # Проверка, пуст ли стек
+        if len(self.list) == 0:
+            # Если стек пуст, ничего не делаем
+            pass
+        else:
+            # Если стек не пуст, возвращаем и удаляем последний добавленный элемент
+            return self.list.pop()
 
-    starships_response = requests.get(f"{base_url}/starships/")
-    starships = starships_response.json().get("results", [])
-    millennium_falcon = next((ship for ship in starships if ship["name"] == "Millennium Falcon"), None)
+    # Метод для проверки, пуст ли стек
+    def isempty(self) -> bool:
+        # Возвращает True, если стек пуст, и False, если в стеке есть элементы
+        return len(self.list) == 0
 
-    if not millennium_falcon:
-        return "Millennium Falcon not found in API data."
+# Создание объекта класса stack
+st = stack()
 
-    pilots_info = []
-    for pilot_url in millennium_falcon.get("pilots", []):
-        pilot = fetch_character_details(pilot_url)
-        if pilot:
-            home_world = fetch_character_details(pilot["homeworld"]) if pilot["homeworld"] else None
-            pilots_info.append({
-                "name": pilot["name"],
-                "height": pilot["height"],
-                "mass": pilot["mass"],
-                "homeworld": home_world["name"] if home_world else "Unknown",
-                "homeworld_url": pilot["homeworld"]
-            })
+# Заполнение стека числами от 1 до 100
+for i in range(1, 101):
+    st.push(i)
 
-    millennium_falcon_data = {
-        "name": millennium_falcon["name"],
-        "max_speed": millennium_falcon["max_atmosphering_speed"],
-        "class": millennium_falcon["starship_class"],
-        "pilots": pilots_info
-    }
+# Вывод, пуст ли стек (ожидается False, так как стек заполнен)
+print(st.isempty())
 
-    return millennium_falcon_data
+# Извлечение и вывод всех элементов стека (от последнего к первому)
+for i in range(1, 101):
+    print(st.get())
 
-millennium_falcon_data = fetch_star_wars_data()
+# После извлечения всех элементов проверка, пуст ли стек (ожидается True)
+print(st.isempty())
 
-# Вывод информации на экран и сохранение в JSON-файл
-print(millennium_falcon_data)
-with open('millennium_falcon_data.json', 'w') as file:
-    json.dump(millennium_falcon_data, file, indent=4)
-
+# Попытка извлечь элемент из пустого стека (ничего не происходит, так как стек пуст)
+print(st.get())

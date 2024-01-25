@@ -1,146 +1,46 @@
-class Transport:
-    # Основной класс для всех видов транспорта
-    def __init__(self, coordinates, speed, brand, year, number):
-        # Инициализация основных атрибутов транспортного средства
-        self._coordinates = coordinates  # координаты транспорта
-        self._speed = speed  # скорость транспорта
-        self._brand = brand  # марка транспорта
-        self._year = year  # год выпуска транспорта
-        self._number = number  # номер транспорта
+import requests
+import json
 
-    def __str__(self):
-        # Строковое представление объекта
-        return f"Transport: {self._brand}, Year: {self._year}, Number: {self._number}"
+def fetch_star_wars_data():
+    base_url = "https://swapi.dev/api"
 
-    def isInArea(self, pos_x, pos_y, length, width):
-        # Проверка, находится ли транспорт в заданной области
-        x, y = self._coordinates
-        return pos_x <= x <= pos_x + length and pos_y <= y <= pos_y + width
+    def fetch_character_details(url):
+        response = requests.get(url)
+        return response.json() if response.status_code == 200 else None
 
-    # Геттеры и сеттеры для атрибутов
-    @property
-    def coordinates(self):
-        return self._coordinates
+    starships_response = requests.get(f"{base_url}/starships/")
+    starships = starships_response.json().get("results", [])
+    millennium_falcon = next((ship for ship in starships if ship["name"] == "Millennium Falcon"), None)
 
-    @coordinates.setter
-    def coordinates(self, coordinates):
-        self._coordinates = coordinates
+    if not millennium_falcon:
+        return "Millennium Falcon not found in API data."
 
-    @property
-    def speed(self):
-        return self._speed
+    pilots_info = []
+    for pilot_url in millennium_falcon.get("pilots", []):
+        pilot = fetch_character_details(pilot_url)
+        if pilot:
+            home_world = fetch_character_details(pilot["homeworld"]) if pilot["homeworld"] else None
+            pilots_info.append({
+                "name": pilot["name"],
+                "height": pilot["height"],
+                "mass": pilot["mass"],
+                "homeworld": home_world["name"] if home_world else "Unknown",
+                "homeworld_url": pilot["homeworld"]
+            })
 
-    @speed.setter
-    def speed(self, speed):
-        self._speed = speed
+    millennium_falcon_data = {
+        "name": millennium_falcon["name"],
+        "max_speed": millennium_falcon["max_atmosphering_speed"],
+        "class": millennium_falcon["starship_class"],
+        "pilots": pilots_info
+    }
 
-    @property
-    def brand(self):
-        return self._brand
+    return millennium_falcon_data
 
-    @brand.setter
-    def brand(self, brand):
-        self._brand = brand
+millennium_falcon_data = fetch_star_wars_data()
 
-    @property
-    def year(self):
-        return self._year
+# Вывод информации на экран и сохранение в JSON-файл
+print(millennium_falcon_data)
+with open('millennium_falcon_data.json', 'w') as file:
+    json.dump(millennium_falcon_data, file, indent=4)
 
-    @year.setter
-    def year(self, year):
-        self._year = year
-
-    @property
-    def number(self):
-        return self._number
-
-    @number.setter
-    def number(self, number):
-        self._number = number
-
-# Классы для пассажирских и грузовых транспортных средств
-class Passenger:
-    # Класс для пассажирских транспортных средств
-    @property
-    def passengers_capacity(self):
-        return self._passengers_capacity
-
-    @passengers_capacity.setter
-    def passengers_capacity(self, passengers_capacity):
-        self._passengers_capacity = passengers_capacity
-
-    @property
-    def number_of_passengers(self):
-        return self._number_of_passengers
-
-    @number_of_passengers.setter
-    def number_of_passengers(self, number_of_passengers):
-        self._number_of_passengers = number_of_passengers
-
-class Cargo:
-    # Класс для грузовых транспортных средств
-    @property
-    def carrying(self):
-        return self._carrying
-
-    @carrying.setter
-    def carrying(self, carrying):
-        self._carrying = carrying
-
-# Классы для различных видов транспорта
-class Plane(Transport):
-    # Класс для самолетов
-    def __init__(self, coordinates, speed, brand, year, number, height):
-        super().__init__(coordinates, speed, brand, year, number)
-        self._height = height  # высота полета самолета
-
-    @property
-    def height(self):
-        return self._height
-
-    @height.setter
-    def height(self, height):
-        self._height = height
-
-class Auto(Transport):
-    # Базовый класс для автомобильного транспорта
-    pass
-
-class Ship(Transport):
-    # Класс для кораблей
-    def __init__(self, coordinates, speed, brand, year, number, port):
-        super().__init__(coordinates, speed, brand, year, number)
-        self._port = port  # порт, в котором находится корабль
-
-    @property
-    def port(self):
-        return self._port
-
-    @port.setter
-    def port(self, port):
-        self._port = port
-
-# Производные классы для конкретных видов автомобильного и корабельного транспорта
-class Car(Auto):
-    pass
-
-class Bus(Auto, Passenger):
-    pass
-
-class CargoAuto(Auto, Cargo):
-    pass
-
-class Boat(Ship):
-    pass
-
-class PassengerShip(Ship, Passenger):
-    pass
-
-class CargoShip(Ship, Cargo):
-    pass
-
-class Seaplane(Plane, Ship):
-    # Класс для гидросамолетов
-    pass
-
-# Пример использования классов (создание экземпляров, изменение атрибутов и вывод информации)
